@@ -1,1 +1,1 @@
-# boids-model
+# Boids Model
