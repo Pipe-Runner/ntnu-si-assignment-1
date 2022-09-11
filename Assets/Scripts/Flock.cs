@@ -68,14 +68,41 @@ public class Flock : MonoBehaviour
         this.transform
       );
 
-			agent.name = "Agent " + i;
-			agents.Add(agent);
+      agent.name = "Agent " + i;
+      agents.Add(agent);
     }
   }
 
   // Update is called once per frame
   void Update()
   {
+    foreach (FlockAgent agent in agents)
+    {
+      List<Transform> context = this.GetNearbyAgents(agent);
+      Vector3 move = this.behaviour.calculateNextMove(agent, context, this);
+      move *= this.driveFactor;
+      if (move.sqrMagnitude > this.squareMaxSpeed)
+      {
+        move = move.normalized * this.maxSpeed;
+      }
+      agent.Move(move);
+    }
+  }
 
+  List<Transform> GetNearbyAgents(FlockAgent agent)
+  {
+    List<Transform> context = new List<Transform>();
+    Collider[] neighbourColliders = Physics.OverlapSphere(agent.transform.position, this.neighbourRadius);
+
+    foreach (Collider neighbourCollider in neighbourColliders)
+    {
+      // we check if the collider instance is of the agent we are checking the neighbours for
+      // we don't want to add that to our list since it will be the same object
+      if (agent.AgentCollider != neighbourCollider)
+      {
+        context.Add(neighbourCollider.transform);
+      }
+    }
+    return context;
   }
 }

@@ -15,7 +15,7 @@ public class FlockAgent : MonoBehaviour
     this.agentCollider = GetComponent<SphereCollider>();
   }
 
-  void Move(Vector3 velocity){
+  public void Move(Vector3 velocity){
     this.transform.forward = velocity;
     this.transform.position += velocity * Time.deltaTime;
   }
