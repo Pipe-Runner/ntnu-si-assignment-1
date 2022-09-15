@@ -5,10 +5,10 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Flock/Behaviour/Avoidance")]
 public class AvoidanceBehaviour : FlockBehaviour
 {
-  public override Vector3 calculateNextMove(FlockAgent agent, List<Transform> context, Flock flock)
+  public override Vector3 calculateNextMove(FlockAgent agent, List<Transform> neighbourTransforms, Flock flock)
   {
     // If no neighbours, then we return a zero vector since we don't need any adjustments
-    if (context.Count == 0)
+    if (neighbourTransforms.Count == 0)
     {
       return Vector3.zero;
     }
@@ -16,7 +16,7 @@ public class AvoidanceBehaviour : FlockBehaviour
     // centroid computation
     Vector3 avoidanceVector = Vector3.zero;
     int numAvoid = 0;
-    foreach (Transform transform in context)
+    foreach (Transform transform in neighbourTransforms)
     {
       if (Vector3.SqrMagnitude(transform.position - agent.transform.position) < flock.squareAvoidanceRadius)
       {
@@ -25,7 +25,7 @@ public class AvoidanceBehaviour : FlockBehaviour
       }
     }
     if(numAvoid > 0){
-      avoidanceVector /= context.Count;
+      avoidanceVector /= neighbourTransforms.Count;
     }
 
     return avoidanceVector;

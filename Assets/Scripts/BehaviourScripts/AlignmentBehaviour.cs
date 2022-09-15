@@ -5,21 +5,21 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Flock/Behaviour/Alignment")]
 public class AlignmentBehaviour : FlockBehaviour
 {
-  public override Vector3 calculateNextMove(FlockAgent agent, List<Transform> context, Flock flock)
+  public override Vector3 calculateNextMove(FlockAgent agent, List<Transform> neighbourTransforms, Flock flock)
   {
-    // If no neighbours, then we return a zero vector since we don't need any adjustments
-    if (context.Count == 0)
+    // If no neighbours, then we return back original direction
+    if (neighbourTransforms.Count == 0)
     {
-      return agent.transform.forward;
+      return agent.transform.up;
     }
 
     // centroid computation
     Vector3 alignmentVector = Vector3.zero;
-    foreach (Transform transform in context)
+    foreach (Transform transform in neighbourTransforms)
     {
-      alignmentVector += transform.forward;
+      alignmentVector += transform.up;
     }
-    alignmentVector /= context.Count;
+    alignmentVector /= neighbourTransforms.Count;
 
     return alignmentVector;
   }

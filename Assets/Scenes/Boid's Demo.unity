@@ -237,14 +237,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentPrefab: {fileID: 7621988882304073325, guid: 05ca1f63f221b184384b8dfaccf97273, type: 3}
-  behaviour: {fileID: 11400000, guid: 8f93e03a1f20082468edda7291999dbb, type: 2}
+  behaviour: {fileID: 11400000, guid: 910b0a8fccb9ff94098bac6aa3d534b0, type: 2}
   startingCount: 250
   driveFactor: 10
-  maxSpeed: 5
+  maxSpeed: 10
   neighbourRadius: 5
-  avoidanceRadiusMultiplier: 5
-  squareMaxSpeed: 0
-  squareNeighbourRadius: 0
+  avoidanceRadiusMultiplier: 0.8
   squareAvoidanceRadius: 0
 --- !u!4 &2016332383
 Transform:

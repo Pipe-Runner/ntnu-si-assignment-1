@@ -43,20 +43,20 @@ public class Flock : MonoBehaviour
 	The parameter for avoidance (dead zone within which another agent should not be present)
 	*/
   [Range(0f, 1f)]
-  public float avoidanceRadiusMultiplier = 5f;
+  public float avoidanceRadiusMultiplier = 0.5f;
 
   // precomputing a few values to make sure we avoid verbosity for calculations
-  public float squareMaxSpeed;
-  public float squareNeighbourRadius;
+  float squareMaxSpeed;
+  float squareNeighbourRadius;
   public float squareAvoidanceRadius;
-  public float SquareAvoidanceRadius { get { return this.squareAvoidanceRadius; } }
+  float SquareAvoidanceRadius { get { return this.squareAvoidanceRadius; } }
 
   // Start is called before the first frame update
   void Start()
   {
     this.squareMaxSpeed = this.maxSpeed * this.maxSpeed;
     this.squareNeighbourRadius = this.neighbourRadius * this.neighbourRadius;
-    this.squareAvoidanceRadius = this.squareNeighbourRadius * this.avoidanceRadiusMultiplier * this.avoidanceRadiusMultiplier;
+    this.squareAvoidanceRadius = this.squareNeighbourRadius * Mathf.Pow(this.avoidanceRadiusMultiplier, 2);
 
     // Instantiate Objects from Prefab
     for (int i = 0; i < this.startingCount; i++)
@@ -78,8 +78,8 @@ public class Flock : MonoBehaviour
   {
     foreach (FlockAgent agent in agents)
     {
-      List<Transform> context = this.GetNearbyAgents(agent);
-      Vector3 move = this.behaviour.calculateNextMove(agent, context, this);
+      List<Transform> neighbourTransforms = this.GetNearbyAgents(agent);
+      Vector3 move = this.behaviour.calculateNextMove(agent, neighbourTransforms, this);
       move *= this.driveFactor;
       if (move.sqrMagnitude > this.squareMaxSpeed)
       {
@@ -91,7 +91,7 @@ public class Flock : MonoBehaviour
 
   List<Transform> GetNearbyAgents(FlockAgent agent)
   {
-    List<Transform> context = new List<Transform>();
+    List<Transform> neighbourTransforms = new List<Transform>();
     Collider[] neighbourColliders = Physics.OverlapSphere(agent.transform.position, this.neighbourRadius);
 
     foreach (Collider neighbourCollider in neighbourColliders)
@@ -100,9 +100,9 @@ public class Flock : MonoBehaviour
       // we don't want to add that to our list since it will be the same object
       if (agent.AgentCollider != neighbourCollider)
       {
-        context.Add(neighbourCollider.transform);
+        neighbourTransforms.Add(neighbourCollider.transform);
       }
     }
-    return context;
+    return neighbourTransforms;
   }
 }
