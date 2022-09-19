@@ -3,5 +3,5 @@ using System.Collections.Generic;
 
 public abstract class Behaviour : ScriptableObject
 {
-  public abstract Vector3 ComputeVelocity(Agent agent, List<Transform> neighbourTransforms, FlockController flockController);
+  public abstract Vector3 ComputeDesiredVelocity(Agent agent, List<Agent> neighbourTransforms, FlockController flockController);
 }

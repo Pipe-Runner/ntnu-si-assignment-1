@@ -4,18 +4,19 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Behaviour/Flock/Alignment")]
 public class Alignment : Behaviour
 {
-  public override Vector3 ComputeVelocity(Agent agent, List<Transform> neighbourTransforms, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocity(Agent agent, List<Agent> neighbours, FlockController flockController)
   {
-    if (neighbourTransforms.Count == 0)
+    // If no one in sight, continue with same velocity as before
+    if (neighbours.Count == 0)
     {
-      return agent.transform.forward;
+      return agent.velocity;
     }
 
     Vector3 result = Vector3.zero;
-    foreach (Transform transform in neighbourTransforms)
+    foreach (Agent neighbour in neighbours)
     {
-      result += transform.forward;
+      result += neighbour.velocity;
     }
-    return result / neighbourTransforms.Count;
+    return result / neighbours.Count;
   }
 }

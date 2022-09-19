@@ -1342,14 +1342,14 @@ MonoBehaviour:
   CenterMarker: {fileID: 1284804192}
   behaviour: {fileID: 11400000, guid: 238e717ee64fa97409a09689711bf57b, type: 2}
   height: 10
+  forceMultiplier: 5
   leaderPathRadius: 24
-  leaderSpeedMultiplier: 0.2
-  agentVisibilityRadius: 30
-  avoidanceRadiusFraction: 0.35
-  agentCount: 20
+  leaderSpeedMultiplier: 0.03
+  maxDesiredSpeed: 40
+  agentVisibilityRadius: 15
+  avoidanceRadiusFraction: 0.5
+  agentCount: 100
   spawnDensity: 10
-  simulationSpeed: 0.49
-  deltaMultiplier: 2
   avoidanceRadius: 0
 --- !u!4 &553794110 stripped
 Transform:

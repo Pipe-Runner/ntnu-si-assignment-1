@@ -4,13 +4,25 @@ using UnityEngine;
 public class Agent : MonoBehaviour
 {
   SphereCollider sphereCollider;
+  [HideInInspector]
+  public Vector3 velocity = Vector3.zero;
 
   public SphereCollider GetCollider { get { return this.sphereCollider; } }
 
+  public void ApplyForce(Vector3 force)
+  {
+    Vector3 acceleration = force; // considering mass to be 1
+    velocity += (acceleration * Time.deltaTime * FlockController.simulationSpeed); // not following newtonian formula for computational simplification
+
+    Move(velocity);
+  }
+
   public void Move(Vector3 velocity)
   {
-    transform.forward = velocity;
-    transform.position += velocity * Time.deltaTime;
+    if(velocity.magnitude != 0){
+      transform.forward = velocity;
+    }
+    transform.position += velocity * Time.deltaTime * FlockController.simulationSpeed;
   }
 
   public void MoveBy(Vector3 deltaPos)
@@ -23,6 +35,9 @@ public class Agent : MonoBehaviour
   {
     Vector3 facing = position - transform.position;
     transform.position = position;
-    transform.forward = facing;
+
+    if(facing.magnitude != 0){
+      transform.forward = facing;
+    }
   }
 }

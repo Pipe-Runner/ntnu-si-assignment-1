@@ -4,19 +4,20 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Behaviour/Flock/Cohesion")]
 public class Cohesion : Behaviour
 {
-  public override Vector3 ComputeVelocity(Agent agent, List<Transform> neighbourTransforms, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocity(Agent agent, List<Agent> neighbours, FlockController flockController)
   {
-    if (neighbourTransforms.Count == 0)
+    // If no one around, don't change velocity
+    if (neighbours.Count == 0)
     {
-      return Vector3.zero;
+      return agent.velocity;
     }
 
     Vector3 centroid = Vector3.zero;
-    foreach (Transform transform in neighbourTransforms)
+    foreach (Agent neighbour in neighbours)
     {
-      centroid += transform.position;
+      centroid += neighbour.transform.position;
     }
-    centroid /= neighbourTransforms.Count;
+    centroid /= neighbours.Count;
     return (centroid - agent.transform.position);
   }
 }

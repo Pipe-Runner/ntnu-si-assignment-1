@@ -8,8 +8,18 @@ public class FlockController : MonoBehaviour
   public GameObject CenterMarker;
   public Behaviour behaviour;
 
+  /* -------------------------------------------------------------------------- */
+  /*                               TUNABLE PARAMS                               */
+  /* -------------------------------------------------------------------------- */
+
   [RangeAttribute(0, 10)]
   public int height = 10;
+
+  [RangeAttribute(1, 10)]
+  public static int simulationSpeed = 8;
+
+  [RangeAttribute(1, 10)]
+  public int forceMultiplier = 5;
 
   [RangeAttribute(10, 50)]
   public int leaderPathRadius = 24;
@@ -18,24 +28,21 @@ public class FlockController : MonoBehaviour
   public float leaderSpeedMultiplier = 0.2f;
 
   [RangeAttribute(0, 50)]
+  public int maxDesiredSpeed = 20;
+
+  [RangeAttribute(0, 50)]
   public int agentVisibilityRadius = 15;
 
   // A faction of visible radius 
   [RangeAttribute(0, 1f)]
   public float avoidanceRadiusFraction = 0.3f;
 
-  [RangeAttribute(20, 250)]
+  [RangeAttribute(2, 250)]
   public int agentCount = 150;
 
   // Higher density, closer to the leader
   [RangeAttribute(1, 10)]
   public int spawnDensity = 8;
-
-  [RangeAttribute(0, 2f)]
-  public float simulationSpeed = 2f;
-
-  [RangeAttribute(0, 50f)]
-  public float deltaMultiplier = 10f;
 
   LeaderAgent leaderAgent;
   List<Agent> agents = new List<Agent>();
@@ -67,13 +74,24 @@ public class FlockController : MonoBehaviour
       randPoint3D.x = randPointCloseToLeader.x;
       randPoint3D.y = 0;
       randPoint3D.z = randPointCloseToLeader.y;
-      Agent newAgent = Instantiate(
+      
+      // Close Agent
+      agents.Add(Instantiate(
         AgentPrefab,
         leaderInitPosition + randPoint3D,
         Quaternion.Euler(Vector3.up * Random.Range(0f, 360f)),
         this.transform
-      );
-      agents.Add(newAgent);
+      ));
+
+      // Far Agent
+      Vector3 oppPosLeader = CenterMarker.transform.position + new Vector3(0, 0, -leaderPathRadius) + randPoint3D;
+      oppPosLeader.y = height;
+      agents.Add(Instantiate(
+        AgentPrefab,
+        oppPosLeader,
+        Quaternion.Euler(Vector3.up * Random.Range(0f, 360f)),
+        this.transform
+      ));
     }
   }
 
@@ -81,10 +99,10 @@ public class FlockController : MonoBehaviour
   {
     // Moving leader in circle around central marker
     Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
-      leaderPathRadius * Mathf.Sin(Time.time * simulationSpeed * leaderSpeedMultiplier),
+      leaderPathRadius * Mathf.Sin(Time.time * leaderSpeedMultiplier * simulationSpeed),
       0
       ,
-      leaderPathRadius * Mathf.Cos(Time.time * simulationSpeed * leaderSpeedMultiplier)
+      leaderPathRadius * Mathf.Cos(Time.time * leaderSpeedMultiplier * simulationSpeed)
     );
     newLeaderPosition.y = height;
     leaderAgent.MoveTo(newLeaderPosition);
@@ -92,25 +110,31 @@ public class FlockController : MonoBehaviour
     // Move flock agents based on behaviour
     foreach (Agent agent in agents)
     {
-      Vector3 computedVelocity = behaviour.ComputeVelocity(
+      Vector3 desiredVelocity = behaviour.ComputeDesiredVelocity(
         agent,
         FindCollidingAgents(agent),
         this
       );
-      agent.MoveBy(computedVelocity * Time.deltaTime * simulationSpeed * deltaMultiplier);
+
+      if(desiredVelocity.magnitude > maxDesiredSpeed){
+        desiredVelocity = desiredVelocity.normalized * maxDesiredSpeed;
+      }
+
+      Vector3 requiredForce = (desiredVelocity - agent.velocity);
+      agent.ApplyForce(requiredForce * forceMultiplier);
     }
   }
 
-  List<Transform> FindCollidingAgents(Agent agent)
+  List<Agent> FindCollidingAgents(Agent agent)
   {
     Collider[] colliders = Physics.OverlapSphere(agent.transform.position, agentVisibilityRadius);
-    List<Transform> result = new List<Transform>();
+    List<Agent> result = new List<Agent>();
 
     foreach (Collider collider in colliders)
     {
       if (collider != agent.GetCollider && collider.gameObject.tag == "Agent")
       {
-        result.Add(collider.transform);
+        result.Add(collider.gameObject.GetComponent<Agent>());
       }
     }
 

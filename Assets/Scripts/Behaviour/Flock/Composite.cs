@@ -7,7 +7,7 @@ public class Composite : Behaviour
   public Behaviour[] behaviours;
   public float[] weights;
 
-  public override Vector3 ComputeVelocity(Agent agent, List<Transform> neighbourTransforms, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocity(Agent agent, List<Agent> neighbours, FlockController flockController)
   {
     if (behaviours.Length == 0)
     {
@@ -15,13 +15,15 @@ public class Composite : Behaviour
       return Vector3.zero;
     }
 
-    Vector3 resultant = Vector3.zero;
+    Vector3 resultantDesiredVelocity = Vector3.zero;
 
+    float weightSum = 0;
     for (int i = 0; i < behaviours.Length; i++)
     {
-      resultant += behaviours[i].ComputeVelocity(agent, neighbourTransforms, flockController) * weights[i];
+      resultantDesiredVelocity += behaviours[i].ComputeDesiredVelocity(agent, neighbours, flockController) * weights[i];
+      weightSum += weights[i];
     }
 
-    return resultant;
+    return resultantDesiredVelocity / weightSum;
   }
 }
