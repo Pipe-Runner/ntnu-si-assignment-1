@@ -16,19 +16,19 @@ public class FlockController : MonoBehaviour
   public int height = 10;
 
   [RangeAttribute(1, 10)]
-  public static int simulationSpeed = 8;
-
-  [RangeAttribute(1, 10)]
   public int forceMultiplier = 5;
 
   [RangeAttribute(10, 50)]
   public int leaderPathRadius = 24;
 
   [RangeAttribute(0, 1f)]
-  public float leaderSpeedMultiplier = 0.2f;
+  public float leaderSpeedMultiplier = 0.1f;
 
-  [RangeAttribute(0, 50)]
-  public int maxDesiredSpeed = 20;
+  [RangeAttribute(0, 10f)]
+  public float maxDesiredSpeed = 0.1f;
+
+  [RangeAttribute(0, 10f)]
+  public float maxForce = 0.05f;
 
   [RangeAttribute(0, 50)]
   public int agentVisibilityRadius = 15;
@@ -37,8 +37,8 @@ public class FlockController : MonoBehaviour
   [RangeAttribute(0, 1f)]
   public float avoidanceRadiusFraction = 0.3f;
 
-  [RangeAttribute(2, 250)]
-  public int agentCount = 150;
+  [RangeAttribute(2, 200)]
+  public int agentCount = 200;
 
   // Higher density, closer to the leader
   [RangeAttribute(1, 10)]
@@ -99,10 +99,10 @@ public class FlockController : MonoBehaviour
   {
     // Moving leader in circle around central marker
     Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
-      leaderPathRadius * Mathf.Sin(Time.time * leaderSpeedMultiplier * simulationSpeed),
+      leaderPathRadius * Mathf.Sin(Time.time * leaderSpeedMultiplier),
       0
       ,
-      leaderPathRadius * Mathf.Cos(Time.time * leaderSpeedMultiplier * simulationSpeed)
+      leaderPathRadius * Mathf.Cos(Time.time * leaderSpeedMultiplier)
     );
     newLeaderPosition.y = height;
     leaderAgent.MoveTo(newLeaderPosition);
@@ -110,18 +110,25 @@ public class FlockController : MonoBehaviour
     // Move flock agents based on behaviour
     foreach (Agent agent in agents)
     {
-      Vector3 desiredVelocity = behaviour.ComputeDesiredVelocity(
+      Vector3 desiredVelocityChange = behaviour.ComputeDesiredVelocityChange(
         agent,
         FindCollidingAgents(agent),
+        FindCollidingWallsIntersection(agent),
         this
       );
 
-      if(desiredVelocity.magnitude > maxDesiredSpeed){
-        desiredVelocity = desiredVelocity.normalized * maxDesiredSpeed;
+      // Not accurate
+      if(desiredVelocityChange.magnitude > maxDesiredSpeed){
+        desiredVelocityChange = desiredVelocityChange.normalized * maxDesiredSpeed;
       }
 
-      Vector3 requiredForce = (desiredVelocity - agent.velocity);
-      agent.ApplyForce(requiredForce * forceMultiplier);
+      Vector3 requiredForce = desiredVelocityChange * forceMultiplier;
+      
+      if(requiredForce.magnitude > maxForce){
+        requiredForce = requiredForce.normalized * maxForce;
+      }
+      
+      agent.ApplyForce(requiredForce);
     }
   }
 
@@ -138,6 +145,23 @@ public class FlockController : MonoBehaviour
       }
     }
 
+    return result;
+  }
+
+  List<Vector3> FindCollidingWallsIntersection(Agent agent)
+  {
+    Collider[] colliders = Physics.OverlapSphere(agent.transform.position, agentVisibilityRadius);
+    List<Vector3> result = new List<Vector3>();
+
+    foreach (Collider collider in colliders)
+    {
+      if (collider != agent.GetCollider && collider.gameObject.tag == "wall")
+      {
+        Debug.Log(collider.ClosestPoint(agent.transform.position));
+        result.Add(collider.ClosestPoint(agent.transform.position));
+      }
+    }
+    
     return result;
   }
 }

@@ -12,7 +12,7 @@ public class Agent : MonoBehaviour
   public void ApplyForce(Vector3 force)
   {
     Vector3 acceleration = force; // considering mass to be 1
-    velocity += (acceleration * Time.deltaTime * FlockController.simulationSpeed); // not following newtonian formula for computational simplification
+    velocity += (acceleration * Time.deltaTime); // not following newtonian formula for computational simplification
 
     Move(velocity);
   }
@@ -22,7 +22,7 @@ public class Agent : MonoBehaviour
     if(velocity.magnitude != 0){
       transform.forward = velocity;
     }
-    transform.position += velocity * Time.deltaTime * FlockController.simulationSpeed;
+    transform.position += velocity * Time.deltaTime;
   }
 
   public void MoveBy(Vector3 deltaPos)

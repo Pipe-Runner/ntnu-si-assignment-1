@@ -1,24 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Behaviour/Flock/Avoidance")]
-public class Avoidance : Behaviour
+[CreateAssetMenu(menuName = "Behaviour/Obstacle/Wall")]
+public class WallAvoidance : Behaviour
 {
   public override Vector3 ComputeDesiredVelocityChange(Agent agent, List<Agent> neighbours, List<Vector3> wallIntersectionPoints, FlockController flockController)
   {
-    if (neighbours.Count == 0)
+    if (wallIntersectionPoints.Count == 0)
     {
       return Vector3.zero;
     }
 
     int count = 0;
     Vector3 result = Vector3.zero;
-    foreach (Agent neighbour in neighbours)
+    foreach (Vector3 points in wallIntersectionPoints)
     {
-      Vector3 diff = agent.transform.position - neighbour.transform.position;
+      Vector3 diff = agent.transform.position - points;
       if (diff.magnitude < flockController.avoidanceRadius)
       {
-        result += (diff) / (diff.magnitude + 0.1f );
+        result += (diff) / (diff.magnitude + 0.1f);
         count++;
       }
     }
