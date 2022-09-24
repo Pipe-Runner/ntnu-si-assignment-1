@@ -4,7 +4,12 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Behaviour/Flock/Cohesion")]
 public class Cohesion : Behaviour
 {
-  public override Vector3 ComputeDesiredVelocityChange(Agent agent, List<Agent> neighbours, List<Vector3> wallIntersectionPoints, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocityChange(
+    Agent agent, 
+    LeaderAgent leader, 
+    List<Agent> neighbours, 
+    List<Vector3> wallIntersectionPoints, 
+    FlockController flockController)
   {
     // If no one around, don't change velocity
     if (neighbours.Count == 0)

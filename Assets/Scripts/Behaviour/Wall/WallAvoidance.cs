@@ -4,7 +4,12 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Behaviour/Obstacle/Wall")]
 public class WallAvoidance : Behaviour
 {
-  public override Vector3 ComputeDesiredVelocityChange(Agent agent, List<Agent> neighbours, List<Vector3> wallIntersectionPoints, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocityChange(
+    Agent agent, 
+    LeaderAgent leader, 
+    List<Agent> neighbours, 
+    List<Vector3> wallIntersectionPoints, 
+    FlockController flockController)
   {
     if (wallIntersectionPoints.Count == 0)
     {

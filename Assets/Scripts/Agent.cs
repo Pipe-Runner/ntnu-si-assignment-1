@@ -19,7 +19,8 @@ public class Agent : MonoBehaviour
 
   public void Move(Vector3 velocity)
   {
-    if(velocity.magnitude != 0){
+    if (velocity.magnitude != 0)
+    {
       transform.forward = velocity;
     }
     transform.position += velocity * Time.deltaTime;
@@ -36,8 +37,17 @@ public class Agent : MonoBehaviour
     Vector3 facing = position - transform.position;
     transform.position = position;
 
-    if(facing.magnitude != 0){
+    if (facing.magnitude != 0)
+    {
       transform.forward = facing;
     }
+  }
+
+  void OnCollisionEnter(Collision collision)
+  {
+    ContactPoint contact = collision.contacts[0];
+    // Quaternion rotation = Quaternion.FromToRotation(Vector3.up, contact.normal);
+    // Vector3 position = contact.point;
+    this.velocity = this.velocity - 2 * (Vector3.Dot(this.velocity, contact.normal) * contact.normal);
   }
 }

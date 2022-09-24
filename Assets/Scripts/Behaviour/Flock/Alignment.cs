@@ -4,7 +4,12 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Behaviour/Flock/Alignment")]
 public class Alignment : Behaviour
 {
-  public override Vector3 ComputeDesiredVelocityChange(Agent agent, List<Agent> neighbours, List<Vector3> wallIntersectionPoints, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocityChange(
+    Agent agent, 
+    LeaderAgent leader, 
+    List<Agent> neighbours, 
+    List<Vector3> wallIntersectionPoints, 
+    FlockController flockController)
   {
     // If no one in sight, continue with same velocity as before
     if (neighbours.Count == 0)

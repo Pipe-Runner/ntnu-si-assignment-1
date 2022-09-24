@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 public class FlockController : MonoBehaviour
 {
+  public enum PathType { SimpleCircle, SimpleLine };
+
+  public PathType path = PathType.SimpleCircle;
+
   public LeaderAgent LeaderAgentPrefab;
   public Agent AgentPrefab;
   public GameObject CenterMarker;
@@ -40,6 +44,8 @@ public class FlockController : MonoBehaviour
   [RangeAttribute(2, 200)]
   public int agentCount = 200;
 
+  public bool multiFlock = false;
+
   // Higher density, closer to the leader
   [RangeAttribute(1, 10)]
   public int spawnDensity = 8;
@@ -56,7 +62,7 @@ public class FlockController : MonoBehaviour
     avoidanceRadius = agentVisibilityRadius * avoidanceRadiusFraction;
 
     // Set starting point for leader
-    Vector3 leaderInitPosition = CenterMarker.transform.position + new Vector3(0, 0, leaderPathRadius);
+    Vector3 leaderInitPosition = CenterMarker.transform.position + new Vector3(leaderPathRadius, 0, 0);
     leaderInitPosition.y = height;
 
     leaderAgent = Instantiate(
@@ -67,14 +73,14 @@ public class FlockController : MonoBehaviour
      );
 
     // Instantiate two sets of agents (one close to leader, one far)
-    for (int i = 0; i < (agentCount / 2); i++)
+    for (int i = 0; i < (multiFlock ? (agentCount / 2) : agentCount); i++)
     {
       Vector2 randPointCloseToLeader = spawnDensity * Random.insideUnitCircle;
       Vector3 randPoint3D = new Vector3();
       randPoint3D.x = randPointCloseToLeader.x;
       randPoint3D.y = 0;
       randPoint3D.z = randPointCloseToLeader.y;
-      
+
       // Close Agent
       agents.Add(Instantiate(
         AgentPrefab,
@@ -84,50 +90,78 @@ public class FlockController : MonoBehaviour
       ));
 
       // Far Agent
-      Vector3 oppPosLeader = CenterMarker.transform.position + new Vector3(0, 0, -leaderPathRadius) + randPoint3D;
-      oppPosLeader.y = height;
-      agents.Add(Instantiate(
-        AgentPrefab,
-        oppPosLeader,
-        Quaternion.Euler(Vector3.up * Random.Range(0f, 360f)),
-        this.transform
-      ));
+      if (multiFlock)
+      {
+        Vector3 oppPosLeader = CenterMarker.transform.position + new Vector3(leaderPathRadius, 0, 0) + randPoint3D;
+        oppPosLeader.y = height;
+        agents.Add(Instantiate(
+          AgentPrefab,
+          oppPosLeader,
+          Quaternion.Euler(Vector3.up * Random.Range(0f, 360f)),
+          this.transform
+        ));
+      }
     }
   }
 
   void Update()
   {
-    // Moving leader in circle around central marker
-    Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
-      leaderPathRadius * Mathf.Sin(Time.time * leaderSpeedMultiplier),
-      0
-      ,
-      leaderPathRadius * Mathf.Cos(Time.time * leaderSpeedMultiplier)
-    );
-    newLeaderPosition.y = height;
-    leaderAgent.MoveTo(newLeaderPosition);
+    float time = Time.timeSinceLevelLoad;
+
+    switch (path)
+    {
+      case PathType.SimpleCircle:
+        {
+          // Moving leader in circle around central marker
+          Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
+            leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
+            0
+            ,
+            leaderPathRadius * Mathf.Sin(time * leaderSpeedMultiplier)
+          );
+          newLeaderPosition.y = height;
+          leaderAgent.MoveTo(newLeaderPosition);
+          break;
+        }
+      case PathType.SimpleLine:
+      {
+          // Moving leader in straight line
+          Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
+            leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
+            0
+            ,
+            0
+          );
+          newLeaderPosition.y = height;
+          leaderAgent.MoveTo(newLeaderPosition);
+          break;
+      }
+    }
 
     // Move flock agents based on behaviour
     foreach (Agent agent in agents)
     {
       Vector3 desiredVelocityChange = behaviour.ComputeDesiredVelocityChange(
         agent,
+        leaderAgent,
         FindCollidingAgents(agent),
-        FindCollidingWallsIntersection(agent),
+        new List<Vector3>(),
         this
       );
 
       // Not accurate
-      if(desiredVelocityChange.magnitude > maxDesiredSpeed){
+      if (desiredVelocityChange.magnitude > maxDesiredSpeed)
+      {
         desiredVelocityChange = desiredVelocityChange.normalized * maxDesiredSpeed;
       }
 
       Vector3 requiredForce = desiredVelocityChange * forceMultiplier;
-      
-      if(requiredForce.magnitude > maxForce){
+
+      if (requiredForce.magnitude > maxForce)
+      {
         requiredForce = requiredForce.normalized * maxForce;
       }
-      
+
       agent.ApplyForce(requiredForce);
     }
   }
@@ -145,23 +179,6 @@ public class FlockController : MonoBehaviour
       }
     }
 
-    return result;
-  }
-
-  List<Vector3> FindCollidingWallsIntersection(Agent agent)
-  {
-    Collider[] colliders = Physics.OverlapSphere(agent.transform.position, agentVisibilityRadius);
-    List<Vector3> result = new List<Vector3>();
-
-    foreach (Collider collider in colliders)
-    {
-      if (collider != agent.GetCollider && collider.gameObject.tag == "wall")
-      {
-        Debug.Log(collider.ClosestPoint(agent.transform.position));
-        result.Add(collider.ClosestPoint(agent.transform.position));
-      }
-    }
-    
     return result;
   }
 }

@@ -7,7 +7,12 @@ public class Composite : Behaviour
   public Behaviour[] behaviours;
   public float[] weights;
 
-  public override Vector3 ComputeDesiredVelocityChange(Agent agent, List<Agent> neighbours, List<Vector3> wallIntersectionPoints, FlockController flockController)
+  public override Vector3 ComputeDesiredVelocityChange(
+    Agent agent, 
+    LeaderAgent leader, 
+    List<Agent> neighbours, 
+    List<Vector3> wallIntersectionPoints, 
+    FlockController flockController)
   {
     if (behaviours.Length == 0)
     {
@@ -19,7 +24,7 @@ public class Composite : Behaviour
 
     for (int i = 0; i < behaviours.Length; i++)
     {
-      Vector3 partial = behaviours[i].ComputeDesiredVelocityChange(agent, neighbours, wallIntersectionPoints, flockController) * weights[i];
+      Vector3 partial = behaviours[i].ComputeDesiredVelocityChange(agent, leader, neighbours, wallIntersectionPoints, flockController) * weights[i];
 
       if (partial.magnitude > (weights[i] * weights[i]))
       {
