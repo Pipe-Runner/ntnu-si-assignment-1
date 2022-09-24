@@ -5,7 +5,11 @@ public class FlockController : MonoBehaviour
 {
   public enum PathType { SimpleCircle, SimpleLine };
 
+  public enum DeltaType { ForceBased, VelocityBased };
+
   public PathType path = PathType.SimpleCircle;
+
+  public DeltaType deltaType = DeltaType.ForceBased;
 
   public LeaderAgent LeaderAgentPrefab;
   public Agent AgentPrefab;
@@ -41,7 +45,7 @@ public class FlockController : MonoBehaviour
   [RangeAttribute(0, 1f)]
   public float avoidanceRadiusFraction = 0.3f;
 
-  [RangeAttribute(2, 200)]
+  [RangeAttribute(1, 200)]
   public int agentCount = 200;
 
   public bool multiFlock = false;
@@ -124,7 +128,7 @@ public class FlockController : MonoBehaviour
           break;
         }
       case PathType.SimpleLine:
-      {
+        {
           // Moving leader in straight line
           Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
             leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
@@ -135,7 +139,7 @@ public class FlockController : MonoBehaviour
           newLeaderPosition.y = height;
           leaderAgent.MoveTo(newLeaderPosition);
           break;
-      }
+        }
     }
 
     // Move flock agents based on behaviour
@@ -149,20 +153,28 @@ public class FlockController : MonoBehaviour
         this
       );
 
-      // Not accurate
       if (desiredVelocityChange.magnitude > maxDesiredSpeed)
       {
         desiredVelocityChange = desiredVelocityChange.normalized * maxDesiredSpeed;
       }
 
-      Vector3 requiredForce = desiredVelocityChange * forceMultiplier;
-
-      if (requiredForce.magnitude > maxForce)
+      // Not accurate
+      if (deltaType == DeltaType.ForceBased)
       {
-        requiredForce = requiredForce.normalized * maxForce;
-      }
+        Vector3 requiredForce = desiredVelocityChange * forceMultiplier;
 
-      agent.ApplyForce(requiredForce);
+        if (requiredForce.magnitude > maxForce)
+        {
+          requiredForce = requiredForce.normalized * maxForce;
+        }
+
+        agent.ApplyForce(requiredForce);
+      }
+      else
+      {
+        Debug.Log(desiredVelocityChange);
+        agent.Move(agent.velocity + desiredVelocityChange);
+      }
     }
   }
 
