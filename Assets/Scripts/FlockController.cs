@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class FlockController : MonoBehaviour
 {
+  public enum SpecialCase { None, WallFollowing, PathFollowing };
+
   public enum PathType { SimpleCircle, SimpleLine };
 
   public enum DeltaType { ForceBased, VelocityBased };
@@ -10,6 +12,8 @@ public class FlockController : MonoBehaviour
   public PathType path = PathType.SimpleCircle;
 
   public DeltaType deltaType = DeltaType.ForceBased;
+
+  public SpecialCase specialCase = SpecialCase.None;
 
   public LeaderAgent LeaderAgentPrefab;
   public Agent AgentPrefab;
@@ -65,6 +69,21 @@ public class FlockController : MonoBehaviour
   {
     avoidanceRadius = agentVisibilityRadius * avoidanceRadiusFraction;
 
+    if ((specialCase == SpecialCase.WallFollowing) || (specialCase == SpecialCase.PathFollowing))
+    {
+      Vector3 position = new Vector3(426.6f, height, 209.2f);
+      position.y = height;
+      Agent agent = Instantiate(
+        AgentPrefab,
+        position,
+        Quaternion.Euler(Vector3.up * Random.Range(0f, 360f)),
+        this.transform
+      );
+      agent.transform.forward = new Vector3(436.9f, height, 219.7f);
+      agents.Add(agent);
+      return;
+    }
+
     // Set starting point for leader
     Vector3 leaderInitPosition = CenterMarker.transform.position + new Vector3(leaderPathRadius, 0, 0);
     leaderInitPosition.y = height;
@@ -112,68 +131,85 @@ public class FlockController : MonoBehaviour
   {
     float time = Time.timeSinceLevelLoad;
 
-    switch (path)
+    if (specialCase == SpecialCase.None)
     {
-      case PathType.SimpleCircle:
+      switch (path)
+      {
+        case PathType.SimpleCircle:
+          {
+            // Moving leader in circle around central marker
+            Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
+              leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
+              0
+              ,
+              leaderPathRadius * Mathf.Sin(time * leaderSpeedMultiplier)
+            );
+            newLeaderPosition.y = height;
+            leaderAgent.MoveTo(newLeaderPosition);
+            break;
+          }
+        case PathType.SimpleLine:
+          {
+            // Moving leader in straight line
+            Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
+              leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
+              0
+              ,
+              0
+            );
+            newLeaderPosition.y = height;
+            leaderAgent.MoveTo(newLeaderPosition);
+            break;
+          }
+      }
+
+      foreach (Agent agent in agents)
+      {
+        Vector3 desiredVelocityChange = behaviour.ComputeDesiredVelocityChange(
+          agent,
+          leaderAgent,
+          FindCollidingAgents(agent),
+          new List<Collider>(),
+          this
+        );
+
+        if (desiredVelocityChange.magnitude > maxDesiredSpeed)
         {
-          // Moving leader in circle around central marker
-          Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
-            leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
-            0
-            ,
-            leaderPathRadius * Mathf.Sin(time * leaderSpeedMultiplier)
-          );
-          newLeaderPosition.y = height;
-          leaderAgent.MoveTo(newLeaderPosition);
-          break;
+          desiredVelocityChange = desiredVelocityChange.normalized * maxDesiredSpeed;
         }
-      case PathType.SimpleLine:
+
+        // Not accurate
+        if (deltaType == DeltaType.ForceBased)
         {
-          // Moving leader in straight line
-          Vector3 newLeaderPosition = CenterMarker.transform.position + new Vector3(
-            leaderPathRadius * Mathf.Cos(time * leaderSpeedMultiplier),
-            0
-            ,
-            0
-          );
-          newLeaderPosition.y = height;
-          leaderAgent.MoveTo(newLeaderPosition);
-          break;
+          Vector3 requiredForce = desiredVelocityChange * forceMultiplier;
+
+          if (requiredForce.magnitude > maxForce)
+          {
+            requiredForce = requiredForce.normalized * maxForce;
+          }
+
+          agent.ApplyForce(requiredForce);
         }
+        else
+        {
+          agent.Move(agent.velocity + desiredVelocityChange);
+        }
+      }
     }
-
-    // Move flock agents based on behaviour
-    foreach (Agent agent in agents)
-    {
-      Vector3 desiredVelocityChange = behaviour.ComputeDesiredVelocityChange(
-        agent,
-        leaderAgent,
-        FindCollidingAgents(agent),
-        new List<Vector3>(),
-        this
-      );
-
-      if (desiredVelocityChange.magnitude > maxDesiredSpeed)
+    else if(specialCase == SpecialCase.WallFollowing || specialCase == SpecialCase.PathFollowing){
+      foreach (Agent agent in agents)
       {
-        desiredVelocityChange = desiredVelocityChange.normalized * maxDesiredSpeed;
-      }
+        List<Collider> walls = FindCollidingWallsTransforms(agent);
 
-      // Not accurate
-      if (deltaType == DeltaType.ForceBased)
-      {
-        Vector3 requiredForce = desiredVelocityChange * forceMultiplier;
+        Vector3 desiredVelocityChange = behaviour.ComputeDesiredVelocityChange(
+          agent,
+          leaderAgent,
+          FindCollidingAgents(agent),
+          walls,
+          this
+        );
 
-        if (requiredForce.magnitude > maxForce)
-        {
-          requiredForce = requiredForce.normalized * maxForce;
-        }
-
-        agent.ApplyForce(requiredForce);
-      }
-      else
-      {
-        Debug.Log(desiredVelocityChange);
-        agent.Move(agent.velocity + desiredVelocityChange);
+        agent.Move((agent.velocity + desiredVelocityChange) * 5);
       }
     }
   }
@@ -188,6 +224,23 @@ public class FlockController : MonoBehaviour
       if (collider != agent.GetCollider && collider.gameObject.tag == "Agent")
       {
         result.Add(collider.gameObject.GetComponent<Agent>());
+      }
+    }
+
+    return result;
+  }
+
+  List<Collider> FindCollidingWallsTransforms(Agent agent)
+  {
+    Collider[] colliders = Physics.OverlapSphere(agent.transform.position, agentVisibilityRadius);
+    List<Collider> result = new List<Collider>();
+
+    foreach (Collider collider in colliders)
+    {
+      if (collider != agent.GetCollider && collider.gameObject.tag == "wall")
+      {
+        Debug.Log(collider.contactOffset);
+        result.Add(collider);
       }
     }
 

@@ -8,7 +8,7 @@ public class Arrival : Behaviour
     Agent agent, 
     LeaderAgent leader, 
     List<Agent> neighbours, 
-    List<Vector3> wallIntersectionPoints, 
+    List<Collider> wallIntersectionPoints, 
     FlockController flockController)
   {
     return (leader.transform.position - agent.transform.position);

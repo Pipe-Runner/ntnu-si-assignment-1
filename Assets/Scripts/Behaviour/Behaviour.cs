@@ -7,7 +7,7 @@ public abstract class Behaviour : ScriptableObject
     Agent agent, 
     LeaderAgent leader,
     List<Agent> neighbourTransforms, 
-    List<Vector3> wallIntersectionPoints,
+    List<Collider> wallIntersectionPoints,
     FlockController flockController
   );
 }

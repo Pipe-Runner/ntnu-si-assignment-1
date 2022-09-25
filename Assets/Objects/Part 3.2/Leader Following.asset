@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edf6e82d3ce77b64eae6e8f302775d00, type: 3}
-  m_Name: Follow
+  m_Script: {fileID: 11500000, guid: 59c0dd750ad23844bb673e33128c88ae, type: 3}
+  m_Name: Leader Following
   m_EditorClassIdentifier: 

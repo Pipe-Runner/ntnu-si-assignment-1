@@ -8,7 +8,7 @@ public class Alignment : Behaviour
     Agent agent, 
     LeaderAgent leader, 
     List<Agent> neighbours, 
-    List<Vector3> wallIntersectionPoints, 
+    List<Collider> wallIntersectionPoints, 
     FlockController flockController)
   {
     // If no one in sight, continue with same velocity as before

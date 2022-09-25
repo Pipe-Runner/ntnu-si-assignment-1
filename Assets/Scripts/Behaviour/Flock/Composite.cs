@@ -11,7 +11,7 @@ public class Composite : Behaviour
     Agent agent, 
     LeaderAgent leader, 
     List<Agent> neighbours, 
-    List<Vector3> wallIntersectionPoints, 
+    List<Collider> wallIntersectionPoints, 
     FlockController flockController)
   {
     if (behaviours.Length == 0)

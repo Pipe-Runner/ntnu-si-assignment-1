@@ -8,7 +8,7 @@ public class ReCenter : Behaviour
     Agent agent, 
     LeaderAgent leader, 
     List<Agent> neighbours, 
-    List<Vector3> wallIntersectionPoints, 
+    List<Collider> wallIntersectionPoints, 
     FlockController flockController)
   {
     Vector3 centerPos = flockController.CenterMarker.transform.position;

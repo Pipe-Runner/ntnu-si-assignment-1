@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Composite
   m_EditorClassIdentifier: 
   behaviours:
-  - {fileID: 11400000, guid: 18e9981af7c447c4dbbc5d77cc72d964, type: 2}
+  - {fileID: 11400000, guid: 989df2d1baa7cad4da22af9312463afc, type: 2}
   weights:
   - 1

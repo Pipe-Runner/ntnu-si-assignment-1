@@ -8,7 +8,7 @@ public class Avoidance : Behaviour
     Agent agent, 
     LeaderAgent leader, 
     List<Agent> neighbours, 
-    List<Vector3> wallIntersectionPoints, 
+    List<Collider> wallIntersectionPoints, 
     FlockController flockController)
   {
     if (neighbours.Count == 0)
