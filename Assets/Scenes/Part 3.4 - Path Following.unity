@@ -771,14 +771,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 148916769}
-  m_LocalRotation: {x: 0.4900492, y: -0.17191699, z: 0.09925632, w: 0.8487901}
+  m_LocalRotation: {x: -0.6665721, y: -0.1455321, z: -0.13500997, w: 0.71852237}
   m_LocalPosition: {x: 490.78, y: 10, z: 221.07}
   m_LocalScale: {x: 28.12, y: 0.11, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 60, y: -22.9, z: 0}
+  m_LocalEulerAnglesHint: {x: -85.704, y: -22.9, z: 0}
 --- !u!1001 &152491061
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1612,7 +1612,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   path: 0
-  deltaType: 1
+  deltaType: 0
   specialCase: 2
   LeaderAgentPrefab: {fileID: 8966602538318066189, guid: 1c338ce2de346dd4aa510903e783c862, type: 3}
   AgentPrefab: {fileID: 4816295709140457132, guid: c5cbaeb7f8b414341a752946ae2d8c0b, type: 3}

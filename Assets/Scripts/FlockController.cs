@@ -239,7 +239,6 @@ public class FlockController : MonoBehaviour
     {
       if (collider != agent.GetCollider && collider.gameObject.tag == "wall")
       {
-        Debug.Log(collider.contactOffset);
         result.Add(collider);
       }
     }

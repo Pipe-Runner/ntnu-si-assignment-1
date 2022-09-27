@@ -1332,6 +1332,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   path: 1
+  deltaType: 0
+  specialCase: 0
   LeaderAgentPrefab: {fileID: 8966602538318066189, guid: 1c338ce2de346dd4aa510903e783c862, type: 3}
   AgentPrefab: {fileID: 4816295709140457132, guid: 19862eee6e0503f4588ceae8e62e56c0, type: 3}
   CenterMarker: {fileID: 1284804192}
@@ -1339,9 +1341,9 @@ MonoBehaviour:
   height: 10
   forceMultiplier: 1
   leaderPathRadius: 24
-  leaderSpeedMultiplier: 0.1
-  maxDesiredSpeed: 1
-  maxForce: 3
+  leaderSpeedMultiplier: 0.3
+  maxDesiredSpeed: 0.5
+  maxForce: 1
   agentVisibilityRadius: 30
   avoidanceRadiusFraction: 0.3
   agentCount: 20
@@ -1555,7 +1557,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592153344}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2241,7 +2243,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1020095566}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
